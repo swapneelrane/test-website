@@ -238,6 +238,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
         }
 
         button {
@@ -250,24 +251,42 @@
             transition: background-color 0.2s;
         }
 
+        button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
         .btn-back {
             background-color: var(--border-color);
             color: var(--text-color);
         }
 
-        .btn-back:hover {
+        .btn-back:hover:not(:disabled) {
             background-color: #94A3B8;
             color: white;
         }
 
-        .btn-next, .btn-submit {
+        .btn-next, .btn-submit, .btn-new {
             background-color: var(--primary-color);
             color: white;
             margin-left: auto;
         }
 
-        .btn-next:hover, .btn-submit:hover {
+        .btn-next:hover:not(:disabled), .btn-submit:hover:not(:disabled), .btn-new:hover {
             background-color: var(--accent-color);
+        }
+
+        .submit-error {
+            display: none;
+            width: 100%;
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #FEF2F2;
+            color: var(--error-color);
+            border: 1px solid #FCA5A5;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            text-align: center;
         }
 
         /* Confirmation screen */
@@ -285,12 +304,24 @@
         #confirmation p {
             font-size: 1.1rem;
             color: var(--text-color);
+            margin-bottom: 10px;
         }
         
         .success-icon {
             font-size: 4rem;
             color: #10B981;
             margin-bottom: 20px;
+        }
+
+        .submission-id-box {
+            background-color: #F1F5F9;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0 30px;
+            font-family: monospace;
+            font-size: 1.1rem;
+            color: var(--primary-color);
+            border: 1px dashed var(--border-color);
         }
 
         @media (max-width: 600px) {
@@ -305,7 +336,6 @@
 <div class="container">
     <!-- Header and branding -->
     <header id="header">
-        <!-- SVG used as a placeholder data URL to represent the Goalkeep banner natively without external files -->
         <img class="banner-img" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgMTAwIj48dGV4dCB4PSIxMCIgeT0iNjAiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSI2MCIgZmlsbD0iIzMzMyI+Z29hbGtlZXA8L3RleHQ+PC9zdmc+" alt="Goalkeep Banner">
         <h1>Data Literacy Program Application Form</h1>
         <p class="subtitle">Apply to join Goalkeep's Data Literacy Program</p>
@@ -327,8 +357,6 @@
         </div>
 
         <form id="applicationForm" novalidate>
-            <!-- Form sections -->
-            
             <!-- Section 1: Organisation Details -->
             <div class="form-section active" id="section-1">
                 <h2>Organisation Details</h2>
@@ -461,6 +489,9 @@
                 <button type="button" id="btnBack" class="btn-back" style="display: none;">Back</button>
                 <button type="button" id="btnNext" class="btn-next">Next</button>
                 <button type="button" id="btnSubmit" class="btn-submit" style="display: none;">Submit</button>
+                <div id="submitError" class="submit-error">
+                    We could not save your application. Please check your connection and try again.
+                </div>
             </div>
         </form>
     </div>
@@ -469,22 +500,34 @@
     <div id="confirmation">
         <div class="success-icon">✓</div>
         <h2>Success!</h2>
-        <p>Application completed for demonstration purposes.</p>
-        <p>This is a frontend prototype. Your responses have not been stored.</p>
+        <p>Application submitted successfully.</p>
+        <p>Your response has been recorded.</p>
+        <div class="submission-id-box">
+            Submission ID: <span id="displaySubmissionId"></span>
+        </div>
+        <button type="button" id="btnNewApp" class="btn-new">Start a New Application</button>
     </div>
 </div>
 
 <script>
+    // Backend URL
+    const SHEET_URL = "https://script.google.com/macros/s/AKfycbzkYKjK3VaZoxAx_fuTBNSfp0fyBWQu39NUNti3f8qcNYesuEgHQML7tbOJ3-ZowLGMDQ/exec";
+
     document.addEventListener("DOMContentLoaded", () => {
         // Form state and elements
         let currentStep = 1;
         const totalSteps = 3;
+        let clientSubmissionId = null; // Holds ID for retry logic
+
         const form = document.getElementById('applicationForm');
         const btnNext = document.getElementById('btnNext');
         const btnBack = document.getElementById('btnBack');
         const btnSubmit = document.getElementById('btnSubmit');
+        const btnNewApp = document.getElementById('btnNewApp');
         const formContainer = document.getElementById('form-container');
         const confirmation = document.getElementById('confirmation');
+        const submitError = document.getElementById('submitError');
+        const displaySubmissionId = document.getElementById('displaySubmissionId');
         
         // Navigation function
         function updateUI() {
@@ -525,6 +568,9 @@
                 btnSubmit.style.display = 'none';
             }
 
+            // Hide any previous errors when navigating
+            submitError.style.display = 'none';
+
             // Scroll to top of form
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -547,6 +593,103 @@
             return isValid;
         }
 
+        // Submission ID generation
+        function generateSubmissionId() {
+            // Creates a unique ID based on timestamp and random string
+            return 'SUB-' + Date.now().toString(36) + '-' + Math.random().toString(36).substr(2, 5).toUpperCase();
+        }
+
+        // Form data collection
+        function getFormData() {
+            const formData = new FormData(form);
+            const data = {};
+            
+            // Extract standard inputs
+            for (let [key, value] of formData.entries()) {
+                data[key] = value;
+            }
+            
+            // Add the submission ID
+            data.client_submission_id = clientSubmissionId;
+            
+            return data;
+        }
+
+        // JSONP verification
+        function verifySubmissionWithJSONP(submissionId) {
+            return new Promise((resolve, reject) => {
+                const callbackName = 'jsonp_cb_' + Math.round(1000000 * Math.random());
+                
+                // Define global callback function
+                window[callbackName] = function(data) {
+                    cleanup();
+                    resolve(data);
+                };
+
+                // Create script tag
+                const script = document.createElement('script');
+                script.id = callbackName;
+                script.src = `${SHEET_URL}?action=checkSubmission&submission_id=${submissionId}&callback=${callbackName}`;
+                
+                // Error handling for script load failure
+                script.onerror = function() {
+                    cleanup();
+                    resolve({ saved: false, error: 'network' });
+                };
+
+                function cleanup() {
+                    delete window[callbackName];
+                    const s = document.getElementById(callbackName);
+                    if (s) document.body.removeChild(s);
+                }
+
+                // Append to body to trigger request
+                document.body.appendChild(script);
+            });
+        }
+
+        // Poll for success
+        async function pollForSuccess(submissionId) {
+            const maxAttempts = 15; // roughly 15 seconds
+            
+            for (let i = 0; i < maxAttempts; i++) {
+                try {
+                    const result = await verifySubmissionWithJSONP(submissionId);
+                    if (result && result.saved === true) {
+                        return true;
+                    }
+                } catch (e) {
+                    console.error("Polling error:", e);
+                }
+                
+                // Wait 1 second before next poll
+                await new Promise(r => setTimeout(r, 1000));
+            }
+            return false;
+        }
+
+        // Success handling
+        function handleSuccess() {
+            formContainer.style.display = 'none';
+            document.querySelector('.progress-container').style.display = 'none';
+            displaySubmissionId.textContent = clientSubmissionId;
+            confirmation.style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // Reset UI buttons
+            btnSubmit.disabled = false;
+            btnSubmit.textContent = 'Submit';
+            btnBack.disabled = false;
+        }
+
+        // Error handling
+        function handleError() {
+            btnSubmit.disabled = false;
+            btnSubmit.textContent = 'Submit';
+            btnBack.disabled = false;
+            submitError.style.display = 'block';
+        }
+
         // Event Listeners
         btnNext.addEventListener('click', () => {
             if (validateCurrentStep()) {
@@ -560,18 +703,70 @@
             updateUI();
         });
 
-        btnSubmit.addEventListener('click', () => {
+        btnSubmit.addEventListener('click', async () => {
             if (validateCurrentStep()) {
-                // Prevent default submission to avoid page reload or backend interaction
-                
-                // Show confirmation screen
-                formContainer.style.display = 'none';
-                confirmation.style.display = 'block';
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                // Prevent duplicate submissions and update UI
+                btnSubmit.disabled = true;
+                btnBack.disabled = true;
+                btnSubmit.textContent = 'Saving...';
+                submitError.style.display = 'none';
+
+                // Reuse existing ID if retrying, otherwise generate a new one
+                if (!clientSubmissionId) {
+                    clientSubmissionId = generateSubmissionId();
+                }
+
+                const payload = getFormData();
+
+                try {
+                    // POST request using mode: no-cors
+                    await fetch(SHEET_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: {
+                            'Content-Type': 'text/plain;charset=utf-8'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    // Start JSONP polling verification
+                    const isSaved = await pollForSuccess(clientSubmissionId);
+
+                    if (isSaved) {
+                        handleSuccess();
+                    } else {
+                        handleError();
+                    }
+
+                } catch (error) {
+                    console.error('Submission failed:', error);
+                    handleError();
+                }
             }
         });
 
-        // Initialize UI
+        // Form reset for new application
+        btnNewApp.addEventListener('click', () => {
+            // Reset form fields
+            form.reset();
+            
+            // Clear submission state
+            clientSubmissionId = null;
+            submitError.style.display = 'none';
+            
+            // Reset step
+            currentStep = 1;
+            
+            // Restore UI views
+            confirmation.style.display = 'none';
+            document.querySelector('.progress-container').style.display = 'block';
+            formContainer.style.display = 'block';
+            
+            // Initialize UI
+            updateUI();
+        });
+
+        // Initialize UI on load
         updateUI();
     });
 </script>
