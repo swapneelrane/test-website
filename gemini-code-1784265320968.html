@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Literacy Program Application Form - Goalkeep</title>
+    <style>
+        /* Colour settings */
+        :root {
+            --primary-color: #0F172A; /* Dark blue */
+            --accent-color: #3B82F6; /* Light blue */
+            --background-color: #F8FAFC; /* Off-white */
+            --text-color: #334155;
+            --border-color: #CBD5E1;
+            --error-color: #EF4444;
+            --card-bg: #FFFFFF;
+        }
+
+        /* General styles */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+        }
+
+        /* Header and branding */
+        header {
+            text-align: center;
+            padding: 30px 20px;
+            border-bottom: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+        }
+
+        .banner-img {
+            max-width: 250px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            margin: 0 0 10px 0;
+        }
+
+        .subtitle {
+            color: var(--text-color);
+            margin: 0;
+            font-size: 1rem;
+        }
+
+        /* Progress Indicator */
+        .progress-container {
+            padding: 20px 30px;
+            background-color: #F1F5F9;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .progress-steps::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: var(--border-color);
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+
+        .step {
+            position: relative;
+            z-index: 2;
+            background-color: var(--background-color);
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.875rem;
+            color: var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .step.active {
+            border-color: var(--accent-color);
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .step.completed {
+            border-color: var(--primary-color);
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .step-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 0.75rem;
+            color: var(--text-color);
+            text-align: center;
+        }
+        
+        .step-label {
+            width: 33%;
+        }
+
+        /* Form sections */
+        .form-section {
+            display: none;
+            padding: 30px;
+        }
+
+        .form-section.active {
+            display: block;
+        }
+
+        .form-section h2 {
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 25px;
+            font-size: 1.25rem;
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 10px;
+            display: inline-block;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label, legend {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--primary-color);
+        }
+
+        .required-mark {
+            color: var(--error-color);
+            margin-left: 4px;
+        }
+
+        .help-text {
+            display: block;
+            font-size: 0.85rem;
+            color: #64748B;
+            margin-top: 4px;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"],
+        input[type="url"],
+        input[type="email"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        fieldset {
+            border: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+        }
+
+        .radio-option input[type="radio"] {
+            margin-right: 10px;
+            accent-color: var(--accent-color);
+            width: 18px;
+            height: 18px;
+        }
+
+        .radio-option label {
+            font-weight: normal;
+            margin-bottom: 0;
+            color: var(--text-color);
+            cursor: pointer;
+        }
+
+        /* Navigation */
+        .form-nav {
+            padding: 20px 30px;
+            background-color: var(--background-color);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        button {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-back {
+            background-color: var(--border-color);
+            color: var(--text-color);
+        }
+
+        .btn-back:hover {
+            background-color: #94A3B8;
+            color: white;
+        }
+
+        .btn-next, .btn-submit {
+            background-color: var(--primary-color);
+            color: white;
+            margin-left: auto;
+        }
+
+        .btn-next:hover, .btn-submit:hover {
+            background-color: var(--accent-color);
+        }
+
+        /* Confirmation screen */
+        #confirmation {
+            display: none;
+            padding: 50px 30px;
+            text-align: center;
+        }
+
+        #confirmation h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        #confirmation p {
+            font-size: 1.1rem;
+            color: var(--text-color);
+        }
+        
+        .success-icon {
+            font-size: 4rem;
+            color: #10B981;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .form-section, .form-nav, .progress-container {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Header and branding -->
+    <header id="header">
+        <!-- SVG used as a placeholder data URL to represent the Goalkeep banner natively without external files -->
+        <img class="banner-img" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgMTAwIj48dGV4dCB4PSIxMCIgeT0iNjAiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSI2MCIgZmlsbD0iIzMzMyI+Z29hbGtlZXA8L3RleHQ+PC9zdmc+" alt="Goalkeep Banner">
+        <h1>Data Literacy Program Application Form</h1>
+        <p class="subtitle">Apply to join Goalkeep's Data Literacy Program</p>
+    </header>
+
+    <div id="form-container">
+        <!-- Progress Indicator -->
+        <div class="progress-container">
+            <div class="progress-steps">
+                <div class="step active" id="step-dot-1">1</div>
+                <div class="step" id="step-dot-2">2</div>
+                <div class="step" id="step-dot-3">3</div>
+            </div>
+            <div class="step-labels">
+                <div class="step-label">Organisation Details</div>
+                <div class="step-label">Data Use & Challenges</div>
+                <div class="step-label">Applicant Details</div>
+            </div>
+        </div>
+
+        <form id="applicationForm" novalidate>
+            <!-- Form sections -->
+            
+            <!-- Section 1: Organisation Details -->
+            <div class="form-section active" id="section-1">
+                <h2>Organisation Details</h2>
+                
+                <div class="form-group">
+                    <label for="orgName">Name of your organisation<span class="required-mark">*</span></label>
+                    <span class="help-text">Enter the registered or commonly used organisation name.</span>
+                    <input type="text" id="orgName" name="orgName" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="orgWebsite">Link to your organisation's website<span class="required-mark">*</span></label>
+                    <span class="help-text">Enter the complete website link.</span>
+                    <input type="url" id="orgWebsite" name="orgWebsite" placeholder="https://" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="orgSector">What is your organisation's primary sector?<span class="required-mark">*</span></label>
+                    <span class="help-text">Select the closest matching sector.</span>
+                    <select id="orgSector" name="orgSector" required>
+                        <option value="" disabled selected>Select a sector</option>
+                        <option value="Education">Education</option>
+                        <option value="Health">Health</option>
+                        <option value="Livelihoods and Employability">Livelihoods and Employability</option>
+                        <option value="Gender Equality">Gender Equality</option>
+                        <option value="Environment and Climate Change">Environment and Climate Change</option>
+                        <option value="Governance">Governance</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Section 2: Data Use and Challenges -->
+            <div class="form-section" id="section-2">
+                <h2>Data Use and Challenges</h2>
+
+                <div class="form-group">
+                    <fieldset>
+                        <legend>Does your organisation currently use dashboards or data reports?<span class="required-mark">*</span></legend>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="dashboardsYes" name="usesDashboards" value="Yes" required>
+                                <label for="dashboardsYes">Yes</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="dashboardsNo" name="usesDashboards" value="No">
+                                <label for="dashboardsNo">No</label>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div class="form-group">
+                    <fieldset>
+                        <legend>How regularly does your organisation use data to make decisions?<span class="required-mark">*</span></legend>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="freqRarely" name="dataFrequency" value="Rarely" required>
+                                <label for="freqRarely">Rarely</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="freqFewTimes" name="dataFrequency" value="A few times a year">
+                                <label for="freqFewTimes">A few times a year</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="freqMonthly" name="dataFrequency" value="Monthly">
+                                <label for="freqMonthly">Monthly</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="freqWeekly" name="dataFrequency" value="Weekly">
+                                <label for="freqWeekly">Weekly</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="freqDaily" name="dataFrequency" value="Daily">
+                                <label for="freqDaily">Daily</label>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div class="form-group">
+                    <label for="biggestChallenge">What is the biggest challenge your team faces while using data?<span class="required-mark">*</span></label>
+                    <span class="help-text">Share one or two key challenges.</span>
+                    <textarea id="biggestChallenge" name="biggestChallenge" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="learningPriorities">What are the top two things your organisation wants to learn from this program?<span class="required-mark">*</span></label>
+                    <span class="help-text">Mention up to two learning priorities.</span>
+                    <textarea id="learningPriorities" name="learningPriorities" required></textarea>
+                </div>
+            </div>
+
+            <!-- Section 3: Applicant Details -->
+            <div class="form-section" id="section-3">
+                <h2>Applicant Details</h2>
+
+                <div class="form-group">
+                    <label for="applicantName">Applicant name<span class="required-mark">*</span></label>
+                    <input type="text" id="applicantName" name="applicantName" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="applicantEmail">Email address<span class="required-mark">*</span></label>
+                    <span class="help-text">Enter an active work email address.</span>
+                    <input type="email" id="applicantEmail" name="applicantEmail" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="applicantRole">Role or designation<span class="required-mark">*</span></label>
+                    <input type="text" id="applicantRole" name="applicantRole" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="applicantTeam">Which team or function do you work in?<span class="required-mark">*</span></label>
+                    <select id="applicantTeam" name="applicantTeam" required>
+                        <option value="" disabled selected>Select a function</option>
+                        <option value="Program Design">Program Design</option>
+                        <option value="Program Implementation">Program Implementation</option>
+                        <option value="Monitoring and Evaluation">Monitoring and Evaluation</option>
+                        <option value="Data and Technology">Data and Technology</option>
+                        <option value="Leadership">Leadership</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="form-nav">
+                <button type="button" id="btnBack" class="btn-back" style="display: none;">Back</button>
+                <button type="button" id="btnNext" class="btn-next">Next</button>
+                <button type="button" id="btnSubmit" class="btn-submit" style="display: none;">Submit</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Confirmation screen -->
+    <div id="confirmation">
+        <div class="success-icon">✓</div>
+        <h2>Success!</h2>
+        <p>Application completed for demonstration purposes.</p>
+        <p>This is a frontend prototype. Your responses have not been stored.</p>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        // Form state and elements
+        let currentStep = 1;
+        const totalSteps = 3;
+        const form = document.getElementById('applicationForm');
+        const btnNext = document.getElementById('btnNext');
+        const btnBack = document.getElementById('btnBack');
+        const btnSubmit = document.getElementById('btnSubmit');
+        const formContainer = document.getElementById('form-container');
+        const confirmation = document.getElementById('confirmation');
+        
+        // Navigation function
+        function updateUI() {
+            // Hide all sections
+            document.querySelectorAll('.form-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show current section
+            document.getElementById(`section-${currentStep}`).classList.add('active');
+            
+            // Update Progress indicator
+            for (let i = 1; i <= totalSteps; i++) {
+                const stepDot = document.getElementById(`step-dot-${i}`);
+                if (i < currentStep) {
+                    stepDot.classList.add('completed');
+                    stepDot.classList.remove('active');
+                } else if (i === currentStep) {
+                    stepDot.classList.add('active');
+                    stepDot.classList.remove('completed');
+                } else {
+                    stepDot.classList.remove('active', 'completed');
+                }
+            }
+            
+            // Toggle buttons
+            if (currentStep === 1) {
+                btnBack.style.display = 'none';
+            } else {
+                btnBack.style.display = 'block';
+            }
+            
+            if (currentStep === totalSteps) {
+                btnNext.style.display = 'none';
+                btnSubmit.style.display = 'block';
+            } else {
+                btnNext.style.display = 'block';
+                btnSubmit.style.display = 'none';
+            }
+
+            // Scroll to top of form
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Validation function
+        function validateCurrentStep() {
+            const currentSection = document.getElementById(`section-${currentStep}`);
+            const inputs = currentSection.querySelectorAll('input, select, textarea');
+            let isValid = true;
+            
+            // Clear custom validity before checking
+            inputs.forEach(input => input.setCustomValidity(''));
+
+            // Check standard HTML5 validation
+            if (!currentSection.querySelector('input:invalid, select:invalid, textarea:invalid') === false) {
+                 isValid = false;
+                 form.reportValidity(); // Shows standard browser tooltip for the first invalid field
+            }
+
+            return isValid;
+        }
+
+        // Event Listeners
+        btnNext.addEventListener('click', () => {
+            if (validateCurrentStep()) {
+                currentStep++;
+                updateUI();
+            }
+        });
+
+        btnBack.addEventListener('click', () => {
+            currentStep--;
+            updateUI();
+        });
+
+        btnSubmit.addEventListener('click', () => {
+            if (validateCurrentStep()) {
+                // Prevent default submission to avoid page reload or backend interaction
+                
+                // Show confirmation screen
+                formContainer.style.display = 'none';
+                confirmation.style.display = 'block';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        });
+
+        // Initialize UI
+        updateUI();
+    });
+</script>
+</body>
+</html>
